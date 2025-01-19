@@ -16,4 +16,16 @@ FROM nginx:1.27-alpine
 
 COPY --from=build /opt/node_app/excalidraw-app/build /usr/share/nginx/html
 
-HEALTHCHECK CMD wget -q -O /dev/null http://localhost || exit 1
+# Create nginx configuration for port 10001
+RUN echo "server { \
+    listen 10001; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html index.htm; \
+        try_files \$uri \$uri/ /index.html; \
+    } \
+}" > /etc/nginx/conf.d/default.conf
+
+EXPOSE 10001
+
+HEALTHCHECK CMD wget -q -O /dev/null http://localhost:10001 || exit 1
